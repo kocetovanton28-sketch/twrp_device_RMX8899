@@ -1,0 +1,69 @@
+name: Build TWRP RE6402L1
+
+on:
+  workflow_dispatch:
+    inputs:
+      community_patches:
+        description: "Apply TWRP source patches from MissMyTime/twrp_device_sm8850 (neo8)"
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      # Must run BEFORE checkout: merges free space of / and /mnt into one big volume
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 2048
+          swap-size-mb: 8192
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Show disk
+        run: df -h; free -h
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git-core gnupg flex bison build-essential zip curl \
+            zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 \
+            libncurses-dev lib32ncurses-dev x11proto-core-dev libx11-dev \
+            lib32z1-dev libgl1-mesa-dev libxml2-utils xsltproc unzip fontconfig \
+            python3 python3-pip bc ccache rsync libssl-dev \
+            liblz4-tool lz4 zstd
+          git config --global user.name "ci"
+          git config --global user.email "ci@example.com"
+          git config --global color.ui false
+
+      - name: Install latest repo launcher
+        run: |
+          mkdir -p "$HOME/bin"
+          curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo -o "$HOME/bin/repo"
+          chmod a+x "$HOME/bin/repo"
+          echo "$HOME/bin" >> "$GITHUB_PATH"
+
+      - name: Build recovery
+        env:
+          WORKDIR: ${{ github.workspace }}/twrp
+          USE_COMMUNITY_PATCHES: ${{ inputs.community_patches && '1' || '0' }}
+        run: |
+          chmod +x build_own.sh
+          ./build_own.sh
+          df -h
+
+      - name: Upload recovery.img
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: recovery-RE6402L1
+          path: ${{ github.workspace }}/twrp/out/target/product/RE6402L1/recovery.img
+          if-no-files-found: warn

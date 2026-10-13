@@ -1,0 +1,68 @@
+# Own draft. Service definitions adapted from the phone's own vendor/odm rc files.
+# jc_weaver / jc_strongbox users do not exist in recovery, so services run as root.
+# Start order is a first guess: tune by logcat/dmesg.
+
+on init
+    mkdir /mnt/vendor 0755 root root
+    mkdir /mnt/vendor/persist 0755 root root
+    # qseecomd looks for TAs in /vendor/firmware_mnt (modem partition); TWRP mounts it as /firmware
+    symlink /firmware /vendor/firmware_mnt
+    start vendor.qseecomd
+
+on boot
+    start vendor.keymint
+    start vendor.gatekeeper_default
+    start vendor.secretkeeper
+    start vendor.weaver_tms
+    start vendor.keymint-strongbox
+    start hal_cryptoeng_oplus
+    start vendor.boot-qti
+
+service vendor.qseecomd /vendor/bin/qseecomd
+    disabled
+    user root
+    group root drmrpc
+    socket notify-topology stream 660 system drmrpc
+    seclabel u:r:recovery:s0
+
+service vendor.keymint /vendor/bin/hw/android.hardware.security.onekeymint-service-qti
+    disabled
+    user root
+    group root system drmrpc
+    seclabel u:r:recovery:s0
+
+service vendor.gatekeeper_default /vendor/bin/hw/android.hardware.gatekeeper-rust-service-qti
+    disabled
+    user root
+    group root system
+    seclabel u:r:recovery:s0
+
+service vendor.secretkeeper /vendor/bin/hw/android.hardware.security.secretkeeper-service-qti
+    disabled
+    user root
+    group root drmrpc
+    seclabel u:r:recovery:s0
+
+service vendor.weaver_tms /odm/bin/hw/android.hardware.weaver-service-tms
+    disabled
+    user root
+    group root system drmrpc
+    seclabel u:r:recovery:s0
+
+service vendor.keymint-strongbox /odm/bin/hw/android.hardware.security.keymint-service-strongbox-tms
+    disabled
+    user root
+    group root system radio drmrpc
+    seclabel u:r:recovery:s0
+
+service hal_cryptoeng_oplus /odm/bin/hw/vendor.oplus.hardware.cryptoeng@1.0-service
+    disabled
+    user root
+    group root system
+    seclabel u:r:recovery:s0
+
+service vendor.boot-qti /vendor/bin/hw/android.hardware.boot-service.qti
+    disabled
+    user root
+    group root
+    seclabel u:r:recovery:s0

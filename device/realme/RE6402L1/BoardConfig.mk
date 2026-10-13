@@ -1,0 +1,57 @@
+DEVICE_PATH := device/realme/RE6402L1
+
+# Architecture (64-bit only SoC)
+TARGET_ARCH := arm64
+TARGET_ARCH_VARIANT := armv8-a
+TARGET_CPU_ABI := arm64-v8a
+TARGET_CPU_VARIANT := generic
+
+TARGET_BOARD_PLATFORM := canoe
+TARGET_BOOTLOADER_BOARD_NAME := canoe
+TARGET_NO_BOOTLOADER := true
+
+# A/B + Virtual A/B
+AB_OTA_UPDATER := true
+AB_OTA_PARTITIONS += boot init_boot vendor_boot dtbo recovery vbmeta vbmeta_system vbmeta_vendor
+
+# Recovery image: boot header v4, ramdisk only (kernel stays in the boot partition)
+BOARD_BOOT_HEADER_VERSION := 4
+BOARD_MKBOOTIMG_ARGS += --header_version 4
+BOARD_RAMDISK_USE_LZ4 := true
+TARGET_NO_KERNEL := true
+BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE := true
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 104857600
+BOARD_USES_RECOVERY_AS_BOOT := false
+
+# Partitions
+TARGET_USERIMAGES_USE_EXT4 := true
+TARGET_USERIMAGES_USE_F2FS := true
+BOARD_USES_METADATA_PARTITION := true
+TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery.fstab
+BOARD_SUPER_PARTITION_SIZE := 18790481920
+
+# Platform version used by TWRP for crypto
+PLATFORM_VERSION := 16.1.0
+PLATFORM_SECURITY_PATCH := 2127-12-31
+VENDOR_SECURITY_PATCH := $(PLATFORM_SECURITY_PATCH)
+
+# FBE / metadata encryption (wrapped keys, inline crypto)
+TW_INCLUDE_CRYPTO := true
+TW_INCLUDE_CRYPTO_FBE := true
+TW_INCLUDE_FBE_METADATA_DECRYPT := true
+BOARD_USES_QCOM_FBE_DECRYPTION := true
+TW_USE_FSCRYPT_POLICY := 2
+
+# UI / misc
+TW_THEME := portrait_hdpi
+TW_EXTRA_LANGUAGES := true
+TW_USE_TOOLBOX := true
+TW_NO_LEGACY_PROPS := true
+RECOVERY_SDCARD_ON_DATA := true
+TARGET_RECOVERY_PIXEL_FORMAT := "BGRA_8888"
+TARGET_USES_MKE2FS := true
+TW_BRIGHTNESS_PATH := "/sys/class/backlight/panel0-backlight/brightness"
+TW_MAX_BRIGHTNESS := 4094
+TW_DEFAULT_BRIGHTNESS := 2000
+TARGET_SCREEN_WIDTH := 1272
+TARGET_SCREEN_HEIGHT := 2772
