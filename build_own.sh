@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Builds TWRP for RE6402L1 from the OWN device tree in this folder.
 # Set USE_COMMUNITY_PATCHES=1 to also apply the TWRP source patches (no device tree) from MissMyTime/twrp_device_sm8850.
-set -euo pipefail
+set -eo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 WORKDIR="${WORKDIR:-$HOME/android/twrp}"
 mkdir -p "$WORKDIR"; cd "$WORKDIR"
