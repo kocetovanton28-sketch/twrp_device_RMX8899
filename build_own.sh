@@ -19,6 +19,7 @@ if [ "${USE_COMMUNITY_PATCHES:-0}" = "1" ]; then
 fi
 
 export ALLOW_MISSING_DEPENDENCIES=true
+set +u
 source build/envsetup.sh
 lunch twrp_RE6402L1-bp2a-eng
 m -j"$(nproc)" recoveryimage
